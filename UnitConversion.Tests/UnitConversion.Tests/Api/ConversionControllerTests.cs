@@ -19,17 +19,17 @@ public class ConversionControllerTests
             new WeightConverter()
         );
 
-        // Controller now takes ConversionRegistry via DI
-        _controller = new ConversionController(registry);
+        // Controller now takes ConversionRegistry and converters via DI
+        _controller = new ConversionController(registry,
+            new LengthConverter(),
+            new TemperatureConverter(),
+            new WeightConverter());
     }
 
     [Fact]
     public void Convert_MetersToFeet_ReturnsOkResult()
     {
-        // Use category-specific request type
-        var request = new LengthConversionRequest(1, LengthUnit.Meters, LengthUnit.Feet);
-
-        var result = _controller.ConvertLength(request);
+        var result = _controller.ConvertLength(1, LengthUnit.Meters, LengthUnit.Feet);
 
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
         var conversion = Assert.IsType<ConversionResult>(okResult.Value);

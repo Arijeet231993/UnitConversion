@@ -2,6 +2,7 @@
 using Swashbuckle.AspNetCore.Annotations;
 using UnitConversion.Application;
 using UnitConversion.Application.Contracts;
+using UnitConversion.Application.Enums;
 using UnitConversion.Application.Services;
 
 namespace UnitConversion.Api.Controllers
@@ -10,40 +11,52 @@ namespace UnitConversion.Api.Controllers
     [Route("api/[controller]")]
     public class ConversionController : ControllerBase
     {
-        private readonly LengthConverter _lengthConverter = new();
-        private readonly TemperatureConverter _temperatureConverter = new();
-        private readonly WeightConverter _weightConverter = new();
+        private readonly LengthConverter _lengthConverter;
+        private readonly TemperatureConverter _temperatureConverter;
+        private readonly WeightConverter _weightConverter;
 
         private readonly ConversionRegistry _registry;
 
-        // ✅ Constructor injection
-        public ConversionController(ConversionRegistry registry)
+        public ConversionController(ConversionRegistry registry, LengthConverter lengthConverter,
+            TemperatureConverter temperatureConverter, WeightConverter weightConverter)
         {
             _registry = registry;
+            _lengthConverter = lengthConverter;
+            _temperatureConverter = temperatureConverter;
+            _weightConverter = weightConverter;
         }
 
-        [HttpPost("length")]
+        [HttpGet("length")]
         [SwaggerOperation(Tags = new[] { "Length Conversions" })]
-        public ActionResult<ConversionResult> ConvertLength([FromBody] LengthConversionRequest request)
+        public ActionResult<ConversionResult> ConvertLength(
+            [FromQuery(Name = "Input Value")] double value,
+            [FromQuery(Name = "Source Unit")] LengthUnit fromUnit,
+            [FromQuery(Name = "TargetUnit")] LengthUnit toUnit)
         {
-            var result = _lengthConverter.Convert(request.Value, request.FromUnit, request.ToUnit);
-            return Ok(new ConversionResult(result, request.ToUnit.ToString()));
+            var result = _lengthConverter.Convert(value, fromUnit, toUnit);
+            return Ok(new ConversionResult(result, toUnit.ToString()));
         }
 
-        [HttpPost("temperature")]
+        [HttpGet("temperature")]
         [SwaggerOperation(Tags = new[] { "Temperature Conversions" })]
-        public ActionResult<ConversionResult> ConvertTemperature([FromBody] TemperatureConversionRequest request)
+        public ActionResult<ConversionResult> ConvertTemperature(
+            [FromQuery(Name = "Input Value")] double value,
+            [FromQuery(Name = "Source Unit")] TemperatureUnit fromUnit,
+            [FromQuery(Name = "TargetUnit")] TemperatureUnit toUnit)
         {
-            var result = _temperatureConverter.Convert(request.Value, request.FromUnit, request.ToUnit);
-            return Ok(new ConversionResult(result, request.ToUnit.ToString()));
+            var result = _temperatureConverter.Convert(value, fromUnit, toUnit);
+            return Ok(new ConversionResult(result, toUnit.ToString()));
         }
 
-        [HttpPost("weight")]
+        [HttpGet("weight")]
         [SwaggerOperation(Tags = new[] { "Weight Conversions" })]
-        public ActionResult<ConversionResult> ConvertWeight([FromBody] WeightConversionRequest request)
+        public ActionResult<ConversionResult> ConvertWeight(
+            [FromQuery(Name = "Input Value")] double value,
+            [FromQuery(Name = "Source Unit")] WeightUnit fromUnit,
+            [FromQuery(Name = "TargetUnit")] WeightUnit toUnit)
         {
-            var result = _weightConverter.Convert(request.Value, request.FromUnit, request.ToUnit);
-            return Ok(new ConversionResult(result, request.ToUnit.ToString()));
+            var result = _weightConverter.Convert(value, fromUnit, toUnit);
+            return Ok(new ConversionResult(result, toUnit.ToString()));
         }
     }
 }

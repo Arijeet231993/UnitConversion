@@ -1,6 +1,7 @@
 ﻿using Microsoft.OpenApi;
 //using Microsoft.OpenApi.Models; // ✅ Correct namespace
 using System.Text.Json.Serialization;
+using UnitConversion.Api.Swagger;
 using UnitConversion.Application;
 using UnitConversion.Application.Services;
 
@@ -31,6 +32,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.EnableAnnotations();
+    options.SchemaFilter<EnumSchemaFilter>();
 });
 
 var app = builder.Build();
